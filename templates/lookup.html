@@ -19,7 +19,11 @@
 
       <tr>
 
-          <td> {{ books.isbn }} </td>
+          <td>
+            <a href="{{ url_for('book', isbn=books.isbn) }}">
+            {{ books.isbn }}
+            </a>
+          </td>
           <td> {{ books.title }}</td>
           <td> {{ books.author }}</td>
           <td> {{ books.year }}</td>

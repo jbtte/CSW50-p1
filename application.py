@@ -76,3 +76,16 @@ def lookup():
     #return render_template("test.html", search_result=search_result)
 
     return render_template("lookup.html", search_result=search_result)
+
+@app.route("/books/<isbn>")
+def book(isbn):
+    """Lists details about a single book."""
+
+    # Make sure flight exists.
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    if isbn is None:
+        return render_template("error.html", message="No such book.")
+
+    # Get goodread info.
+
+    return render_template("book.html",  book=book)
