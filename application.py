@@ -25,6 +25,11 @@ db = scoped_session(sessionmaker(bind=engine))
 def login():
     return render_template("login.html")
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return render_template("login.html")
+
 @app.route("/register")
 def register():
     return render_template("register.html")
@@ -54,9 +59,20 @@ def logcheck():
 
     user_passw = db.execute("SELECT password FROM users WHERE id = :id", {"id": user_id}).fetchone()
 
-    #return render_template("logcheck.html", user_passw=user_passw[0])
 
     if user_passw[0] != passw:
         return render_template("error.html", message="User/Password combination doesn't match. Please try again.")
     else:
-        return render_template("success.html")
+        return render_template("search.html")
+
+@app.route("/lookup", methods=["POST"])
+def lookup():
+
+    search_param = request.form.get("search_param")
+
+    search_result = db.execute("SELECT * FROM books WHERE isbn ILIKE :text OR title ILIKE :text OR author ILIKE :text",
+    {"text": "%"+search_param+"%"}).fetchall()
+
+    #return render_template("test.html", search_result=search_result)
+
+    return render_template("lookup.html", search_result=search_result)
