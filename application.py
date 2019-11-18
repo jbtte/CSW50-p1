@@ -1,4 +1,5 @@
 import os
+from datetime import date
 
 from flask import Flask, session, request, render_template
 from flask_session import Session
@@ -54,15 +55,16 @@ def confirmation():
 @app.route("/logcheck", methods=["POST"])
 def logcheck():
 
-    user_id = request.form.get("username")
+    usernm = request.form.get("username")
     passw = request.form.get("password")
 
-    user_passw = db.execute("SELECT password FROM users WHERE id = :id", {"id": user_id}).fetchone()
+    user_passw = db.execute("SELECT password FROM users WHERE id = :id", {"id": usernm}).fetchone()
 
 
-    if user_passw[0] != passw:
+    if user_passw is None or passw != user_passw[0]:
         return render_template("error.html", message="User/Password combination doesn't match. Please try again.")
     else:
+        session["user_id"] = db.execute("SELECT user_id FROM users WHERE id = :id", {"id": usernm}).fetchone()
         return render_template("search.html")
 
 @app.route("/lookup", methods=["POST"])
@@ -73,19 +75,38 @@ def lookup():
     search_result = db.execute("SELECT * FROM books WHERE isbn ILIKE :text OR title ILIKE :text OR author ILIKE :text",
     {"text": "%"+search_param+"%"}).fetchall()
 
-    #return render_template("test.html", search_result=search_result)
 
     return render_template("lookup.html", search_result=search_result)
 
-@app.route("/books/<isbn>")
-def book(isbn):
+@app.route("/books/<isbn>", methods=["POST", "GET"])
+def book(isbn, message=None):
     """Lists details about a single book."""
-
-    # Make sure flight exists.
+    # Make sure book exists.
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
     if isbn is None:
         return render_template("error.html", message="No such book.")
 
+    """ Adding review """
+    review = request.form.get("review")
+
+    if review != None:        
+        if db.execute("SELECT * FROM reviews WHERE books = :books AND usr = :user", {"books": book[0], "user":session["user_id"][0]}).rowcount == 0:
+            today = date.today()
+            db.execute("INSERT INTO reviews (books, usr, review, date) VALUES (:books, :usr, :review, :date)",
+                    {"books":int(book[0]), "usr": int(session["user_id"][0]), "review": review, "date":today})
+            db.commit()
+            return render_template("book.html", book=book, message="Thanks for your comment!")
+
+        else:
+            return render_template("book.html", book=book, message="You've already commented this book!")
+
+
+
+
+
+
+
     # Get goodread info.
 
-    return render_template("book.html",  book=book)
+    return render_template("book.html",  book=book, review=review)
