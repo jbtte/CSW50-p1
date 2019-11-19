@@ -87,10 +87,15 @@ def book(isbn, message=None):
     if isbn is None:
         return render_template("error.html", message="No such book.")
 
+
+    """ Adding comment section """
+    comments = db.execute("SELECT * FROM reviews WHERE books = :books", {"books": book[0]}).fetchall()
+
+
     """ Adding review """
     review = request.form.get("review")
 
-    if review != None:        
+    if review != None:
         if db.execute("SELECT * FROM reviews WHERE books = :books AND usr = :user", {"books": book[0], "user":session["user_id"][0]}).rowcount == 0:
             today = date.today()
             db.execute("INSERT INTO reviews (books, usr, review, date) VALUES (:books, :usr, :review, :date)",
@@ -109,4 +114,4 @@ def book(isbn, message=None):
 
     # Get goodread info.
 
-    return render_template("book.html",  book=book, review=review)
+    return render_template("book.html",  book=book, review=review, comments=comments)
