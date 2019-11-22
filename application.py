@@ -3,12 +3,15 @@ import requests
 import json
 from datetime import date
 
-from flask import Flask, session, request, render_template
+from flask import Flask, session, request, render_template, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
+
+# KEYS
+KEY_goodreads = "f0BtJUIFaJvDHOXd8DfVg"
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -58,11 +61,6 @@ def confirmation():
 @app.route("/logcheck", methods=["POST", "GET"])
 def logcheck():
 
-
-    # if session['logged_in']:
-    #     return render_template("search.html")
-
-
     usernm = request.form.get("username")
     passw = request.form.get("password")
 
@@ -94,33 +92,77 @@ def book(isbn, message=None):
     # Make sure book exists.
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
-    if isbn is None:
+    if book is None:
         return render_template("error.html", message="No such book.")
 
 
-    ''' Goodreads info '''
-    KEY = "f0BtJUIFaJvDHOXd8DfVg"
-    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": KEY, "isbns":isbn.strip()}).json()
+    """ Goodreads info """
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": KEY_goodreads, "isbns":isbn.strip()}).json()
+
+
 
 
     """ Adding comment section """
-    comments = db.execute("SELECT * FROM reviews WHERE books = :books", {"books": book[0]}).fetchall()
+    comments = db.execute("SELECT reviews.date, reviews.review, reviews.rating, users.id FROM reviews \
+                        INNER JOIN users ON reviews.comment_id=users.user_id WHERE books = :books", {"books": book[0]}).fetchall()
 
 
     """ Adding review """
     review = request.form.get("review")
+    rating_value = request.form.get("rating")
 
+    # Checking if user made a comment
     if review != None:
+        # Checking if the user already made a comment
         if db.execute("SELECT * FROM reviews WHERE books = :books AND usr = :user", {"books": book[0], "user":session["user_id"][0]}).rowcount == 0:
-            today = date.today()
-            db.execute("INSERT INTO reviews (books, usr, review, date) VALUES (:books, :usr, :review, :date)",
-                    {"books":int(book[0]), "usr": int(session["user_id"][0]), "review": review, "date":today})
+            today = date.today() # adding date to the comment
+            # Inserting the relevant info into the database
+            db.execute("INSERT INTO reviews (books, usr, review, date, rating) VALUES (:books, :usr, :review, :date, :rating)",
+                    {"books":int(book[0]), "usr": int(session["user_id"][0]), "review": review, "date":today, "rating": rating_value})
             db.commit()
-            return render_template("book.html", book=book, message="Thanks for your comment!")
+
+            # I have to redo this line of code, so the next time it renders the webpage the new comment shows up
+            comments = db.execute("SELECT * FROM reviews WHERE books = :books", {"books": book[0]}).fetchall()
+            return render_template("book.html", book=book, comments=comments, goodreads = res["books"][0], message="Thanks for your comment!")
 
         else:
-            return render_template("book.html", book=book, message="You've already commented this book!")
+            return render_template("book.html", book=book, comments=comments, goodreads = res["books"][0], message="You've already commented this book!")
 
 
 
     return render_template("book.html",  book=book, review=review, comments=comments, goodreads = res["books"][0])
+
+
+@app.route("/<isbn>")
+def book_info(isbn):
+
+    """ Get Request """
+    '''Return a JSON object with relevant info on the selected book'''
+
+
+    """Lists details about a single book."""
+    # Make sure book exists.
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
+    if book is None:
+        return render_template("error.html", message="No such book.")
+
+
+    """ Goodreads info """
+    res = requests.get("https://www.goodreads.com/book/review_counts.json",
+    params={"key": KEY_goodreads, "isbns":isbn.strip()}).json()
+
+    review_count = res["books"][0]["work_reviews_count"]
+    average_rating = res["books"][0]["average_rating"]
+
+    # Arranging data in dictionary
+    books_info = {
+        "title": book["title"],
+        "author": book["author"],
+        "year": book["year"],
+        "isbn": isbn,
+        "review_count": review_count,
+        # "average_score": average_rating,
+        }
+
+    return jsonify(books_info)

@@ -26,9 +26,6 @@
 
  }
 
-
-
-
   .window {
 
   	width: 50%;
@@ -42,23 +39,62 @@
 
   }
 
-  .comment-wrapper .panel-body {
+
+.star-button{
+
+  margin-left: 1%;
+  margin-right: 1%;
+
+
+}
+
+.comment-wrapper .panel-body {
       max-height:650px;
       overflow:auto;
   }
 
-  .comment-wrapper .media-list .media img {
-      width:64px;
-      height:64px;
+.comment-wrapper {
+      width:100%;
+      height:75%;
       border:2px solid #e5e7e8;
-  }
-
-  .comment-wrapper .media-list .media {
       border-bottom:1px dashed #efefef;
-      margin-bottom:25px;
+      margin-bottom:1%;
+      margin-right: 5%
+      margin-left: 5%;
+
   }
 
 
+/* star rating */
+
+.starrating > input {display: none;}  /* Remove radio buttons */
+
+.starrating > label:before {
+  content: "\f005"; /* Star */
+  margin: 2px;
+  /* font-size: 8em; */
+  font-family: FontAwesome;
+  display: inline-block;
+}
+
+.starrating > label {
+  color: #222222; /* Start color when not clicked */
+}
+
+.starrating > input:checked ~ label {
+  color: #ffca08 ;
+} /* Set yellow color when star checked */
+
+.starrating > input:hover ~ label
+{ color: #ffca08 ;  } /* Set yellow color when star hover */
+
+
+/* Reviews */
+.media{
+
+  margin-right: 20%;
+
+}
 
 </style>
 
@@ -111,13 +147,29 @@
   <!-- /* Add comment */ -->
   <div class="card">
     <div class="row bootstrap snippets">
-      <div class="col-md-6 col-md-offset-2 col-sm-12">
+      <div class="col">
         <div class="comment-wrapper">
           <div class="panel panel-info">
             <div class="panel-body">
               <form action="{{ url_for('book', isbn=book.isbn) }}" method="post">
-          			<textarea placeholder="What did you think of this book?" name="review"></textarea>
-                <button type="submit" class="btn btn-info pull-right"> Post</button>
+          			<textarea class="form-control" placeholder="Tell us what was your experience with this book" name="review"></textarea>
+                <br>
+                <div class="row star-button">
+                  <div class="col-12 col-sm-6 col-md-8">
+
+                    <div class="starrating risingstar d-flex float-left flex-row-reverse">
+                      <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 star"></label>
+                      <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 star"></label>
+                      <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 star"></label>
+                      <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 star"></label>
+                      <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star"></label>
+                    </div>
+
+                  </div>
+                  <div class="col-6 col-md-4 float-left">
+                    <button type="submit" class="btn btn-info float-right"> Post</button>
+                  </div>
+                </div>
           		</form>
               <div class="clearfix">
                 {{ message }}
@@ -137,10 +189,10 @@
         {% for each in comments %}
           <li class="media">
             <div class="media-body">
-              <strong class="text-success"> {{ each.usr }}</strong>
+              <strong class="text-success float-left"> @{{ each.id }}</strong>
               <span class="text-muted pull-right">
-                <small> {{ each.date }}</small>
-              </span>
+                <small class="float-right"> {{ each.date.strftime('%d-%m-%Y') }}</small>
+              </span><br>
               <p> {{ each.review }} </p>
             </div>
           </li>
