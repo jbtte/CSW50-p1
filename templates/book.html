@@ -6,9 +6,41 @@
 
 {% block css %}
 
-<style>
 
-  body{ background: #fafafa;}
+ <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/book.css') }}" />
+
+
+ <style>
+
+ body {
+
+   	/* The image used */
+   	background-image: url({{ url_for('static', filename="image/bg-main.jpg") }} );
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-attachment: fixed;
+
+
+ }
+
+
+
+
+  .window {
+
+  	width: 50%;
+    margin: auto;
+
+  }
+
+  .card {
+
+    margin-top: 2%;
+
+  }
 
   .comment-wrapper .panel-body {
       max-height:650px;
@@ -33,67 +65,91 @@
 {% endblock %}
 
 {% block body %}
-<div class="align-items-center">
 
-  <h1> {{ book.title }}</h1>
-  <h3> by {{ book.author }}</h3>
-  <br>
-  <h3> Year of Publication: {{ book.year }} </h3>
-  <h5> ISBN # {{ book.isbn }} </h5>
+<div class="window">
 
-</div>
+  <!-- /* Navbar */ -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="/logcheck">Search<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/logout">Logout<span class="sr-only">(current)</span></a>
+        </li>
+    </div>
+  </nav>
 
+  <!-- /* Book info card */ -->
+  <div class="card book-info text-center">
+    <h1 class="card-title"> {{ book.title }}</h1>
+    <h3 class="card-subtitle mb-2 text-muted"> by {{ book.author }}</h3>
+    <div class="card-body">
+      <p> Year of Publication: {{ book.year }}
+      <br> ISBN # {{ book.isbn }} </p>
+    </div>
+  </div>
 
-
-<div class="row bootstrap snippets">
-  <div class="col-md-6 col-md-offset-2 col-sm-12">
-    <div class="comment-wrapper">
-      <div class="panel panel-info">
-        <div class="panel-body">
-          <form action="{{ url_for('book', isbn=book.isbn) }}" method="post">
-      			<textarea placeholder="What did you think of this book?" name="review"></textarea>
-            <button type="submit" class="btn btn-info pull-right"> Post</button>
-      		</form>
-          <div class="clearfix">
-
-            {{ message }}
-
-          </div>
-          <hr>
-
-          {% if comments|length > 0 %}
-
-          <ul class="media-list">
-
-              {% for each in comments %}
-
-              <li class="media">
-                <div class="media-body">
-                 <strong class="text-success"> {{ each.usr }}</strong>
-                 <span class="text-muted pull-right">
-                   <small> {{ each.date }}</small>
-                 </span>
-
-                 <p>
-                   {{ each.review }}
-                 </p>
-                </div>
-              </li>
-
-                {% endfor %}
-
-            </ul>
-          {% else %}
-
-            <h3> Be the first to comment this book </h3>
-
-          {% endif %}
-
+  <!-- /* Goodread info card */ -->
+  <div class="card bg-light mb-3"">
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        <img src="{{url_for('static', filename='image/goodreads.jpeg')}}" class="card-img" alt="Goodreads">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">Goodreads Info</h5>
+          <p class="card-text">Average ratings: {{ goodreads.average_rating }}
+          <br> Number of ratings: {{ goodreads.work_ratings_count }} </p>
         </div>
       </div>
     </div>
   </div>
-</div>
 
+
+  <!-- /* Add comment */ -->
+  <div class="card">
+    <div class="row bootstrap snippets">
+      <div class="col-md-6 col-md-offset-2 col-sm-12">
+        <div class="comment-wrapper">
+          <div class="panel panel-info">
+            <div class="panel-body">
+              <form action="{{ url_for('book', isbn=book.isbn) }}" method="post">
+          			<textarea placeholder="What did you think of this book?" name="review"></textarea>
+                <button type="submit" class="btn btn-info pull-right"> Post</button>
+          		</form>
+              <div class="clearfix">
+                {{ message }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- /* Show comments */ -->
+  <div class="card">
+    <hr>
+      {% if comments|length > 0 %}
+      <ul class="media-list">
+        {% for each in comments %}
+          <li class="media">
+            <div class="media-body">
+              <strong class="text-success"> {{ each.usr }}</strong>
+              <span class="text-muted pull-right">
+                <small> {{ each.date }}</small>
+              </span>
+              <p> {{ each.review }} </p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+        {% else %}
+      <h3> Be the first to comment this book </h3>
+      {% endif %}
+  </div>
+</div>
 
 {% endblock %}

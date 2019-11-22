@@ -1,0 +1,49 @@
+body {
+
+	/* Center and scale the image nicely */
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	background-attachment: fixed;
+
+}
+
+.window {
+
+	width: 50%;
+  margin: auto;
+
+}
+
+.container {
+
+  margin-top: 1%;
+
+}
+
+.card {
+
+  margin-top: 2%;
+
+}
+
+.card-title {
+
+  padding-top: 2%;
+  padding-left: 4%;
+
+}
+
+/* style for the lookup page*/
+.results-table{
+
+  width: 50%;
+  margin: auto;
+
+}
+
+.result-window{
+
+  margin-top: 1%;
+
+}

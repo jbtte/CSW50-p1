@@ -1,4 +1,6 @@
 import os
+import requests
+import json
 from datetime import date
 
 from flask import Flask, session, request, render_template
@@ -52,8 +54,14 @@ def confirmation():
     db.commit()
     return render_template("success.html")
 
-@app.route("/logcheck", methods=["POST"])
+
+@app.route("/logcheck", methods=["POST", "GET"])
 def logcheck():
+
+
+    # if session['logged_in']:
+    #     return render_template("search.html")
+
 
     usernm = request.form.get("username")
     passw = request.form.get("password")
@@ -80,12 +88,19 @@ def lookup():
 
 @app.route("/books/<isbn>", methods=["POST", "GET"])
 def book(isbn, message=None):
+
+
     """Lists details about a single book."""
     # Make sure book exists.
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
     if isbn is None:
         return render_template("error.html", message="No such book.")
+
+
+    ''' Goodreads info '''
+    KEY = "f0BtJUIFaJvDHOXd8DfVg"
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": KEY, "isbns":isbn.strip()}).json()
 
 
     """ Adding comment section """
@@ -108,10 +123,4 @@ def book(isbn, message=None):
 
 
 
-
-
-
-
-    # Get goodread info.
-
-    return render_template("book.html",  book=book, review=review, comments=comments)
+    return render_template("book.html",  book=book, review=review, comments=comments, goodreads = res["books"][0])
