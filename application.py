@@ -133,7 +133,7 @@ def book(isbn, message=None):
     return render_template("book.html",  book=book, review=review, comments=comments, goodreads = res["books"][0])
 
 
-@app.route("/<isbn>")
+@app.route("/api/<isbn>")
 def book_info(isbn):
 
     """ Get Request """

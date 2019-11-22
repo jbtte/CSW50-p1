@@ -1,38 +1,83 @@
 body {
 
-  /* Center and scale the image nicely */
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-attachment: fixed;
+   /* The image used */
+   background-image: url({{ url_for('static', filename="image/bg-main.jpg") }} );
+
+   /* Center and scale the image nicely */
+   background-position: center;
+   background-repeat: no-repeat;
+   background-size: 100% 100%;
+   background-attachment: fixed;
+
 
 }
 
-.window {
+ .window {
 
-  width: 50%;
-  margin: auto;
+   width: 50%;
+   margin: auto;
 
-}
+ }
 
-.card {
+ .card {
 
-  margin-top: 2%;
+   margin-top: 2%;
+
+ }
+
+
+.star-button{
+
+ margin-left: 1%;
+ margin-right: 1%;
+
 
 }
 
 .comment-wrapper .panel-body {
-    max-height:650px;
-    overflow:auto;
+     max-height:650px;
+     overflow:auto;
+ }
+
+.comment-wrapper {
+     width:100%;
+     height:75%;
+     border:2px solid #e5e7e8;
+     border-bottom:1px dashed #efefef;
+     margin-bottom:1%;
+     margin-right: 5%
+     margin-left: 5%;
+
+ }
+
+
+/* star rating */
+
+.starrating > input {display: none;}  /* Remove radio buttons */
+
+.starrating > label:before {
+ content: "\f005"; /* Star */
+ margin: 2px;
+ /* font-size: 8em; */
+ font-family: FontAwesome;
+ display: inline-block;
 }
 
-.comment-wrapper .media-list .media img {
-    width:64px;
-    height:64px;
-    border:2px solid #e5e7e8;
+.starrating > label {
+ color: #222222; /* Start color when not clicked */
 }
 
-.comment-wrapper .media-list .media {
-    border-bottom:1px dashed #efefef;
-    margin-bottom:25px;
+.starrating > input:checked ~ label {
+ color: #ffca08 ;
+} /* Set yellow color when star checked */
+
+.starrating > input:hover ~ label
+{ color: #ffca08 ;  } /* Set yellow color when star hover */
+
+
+/* Reviews */
+.media{
+
+ margin-right: 20%;
+
 }

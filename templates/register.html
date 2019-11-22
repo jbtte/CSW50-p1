@@ -17,6 +17,7 @@ body { background-image: url("static/image/bg-register.jpg");}
 {% endblock %}
 
 {% block body %}
+<!-- Code inspired by https://www.tutorialrepublic.com/snippets/preview.php?topic=bootstrap&file=simple-registration-form -->
 <div class="signup-form">
     <form action="{{ url_for('confirmation') }}" method="post">
 		    <h2>Register</h2>

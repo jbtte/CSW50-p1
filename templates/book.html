@@ -109,9 +109,6 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="/logcheck">Search<span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item active">
           <a class="nav-link" href="/logout">Logout<span class="sr-only">(current)</span></a>
         </li>
     </div>
@@ -154,6 +151,7 @@
               <form action="{{ url_for('book', isbn=book.isbn) }}" method="post">
           			<textarea class="form-control" placeholder="Tell us what was your experience with this book" name="review"></textarea>
                 <br>
+                <!-- Code adapted from https://codepen.io/yaworek/pen/JJpEaZ -->
                 <div class="row star-button">
                   <div class="col-12 col-sm-6 col-md-8">
 
