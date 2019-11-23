@@ -1,6 +1,5 @@
 import os
 import requests
-import json
 from datetime import date
 
 from flask import Flask, session, request, render_template, jsonify
@@ -145,15 +144,14 @@ def book_info(isbn):
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
     if book is None:
-        return render_template("error.html", message="No such book.")
+        return jsonify({"error": "There is no book with that ISBN number"}), 404
 
 
-    """ Goodreads info """
-    res = requests.get("https://www.goodreads.com/book/review_counts.json",
-    params={"key": KEY_goodreads, "isbns":isbn.strip()}).json()
+    """ Rating info from site """
+    res = db.execute("SELECT COUNT(*), AVG(rating) FROM reviews WHERE books = :book", {"book": book.book_id}).fetchone()
 
-    review_count = res["books"][0]["work_reviews_count"]
-    average_rating = res["books"][0]["average_rating"]
+    review_count = res.count
+    average_rating = str(res.avg)
 
     # Arranging data in dictionary
     books_info = {
@@ -162,7 +160,7 @@ def book_info(isbn):
         "year": book["year"],
         "isbn": isbn,
         "review_count": review_count,
-        # "average_score": average_rating,
+        "average_score": average_rating,
         }
 
     return jsonify(books_info)
